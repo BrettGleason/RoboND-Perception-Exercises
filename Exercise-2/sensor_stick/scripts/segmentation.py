@@ -8,7 +8,8 @@ from pcl_helper import *
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
 
-    # TODO: Convert ROS msg to PCL data
+    # Convert ROS msg to PCL data
+    point_cloud = ros_to_pcl(pcl_msg)
 
     # TODO: Voxel Grid Downsampling
 
