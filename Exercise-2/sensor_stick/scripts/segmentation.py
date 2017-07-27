@@ -3,7 +3,35 @@
 # Import modules
 from pcl_helper import *
 
-# TODO: Define functions as required
+# Define functions as required
+def vox_downsample(cloud):
+    # Create a VoxelGrid filter object for our input point cloud
+    vox = cloud.make_voxel_grid_filter()
+
+    # Choose a voxel (also known as leaf) size. Unit = meters
+    LEAF_SIZE = 0.01
+    
+    # Set the voxel (or leaf) size
+    vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
+    
+    # Call the filter function to obtain the resultant downsampled point cloud
+    cloud_filtered = vox.filter()
+    
+    return cloud_filtered
+
+def passthrough_filter(cloud, filter_axis, axis_min, axis_max):
+    # Create a PassThrough filter object
+    passthrough = cloud.make_passthrough_filter()
+
+    # Assign axis and range to the passthrough filter object
+    passthrough.set_filter_field_name (filter_axis)
+    passthrough.set_filter_limits (axis_min, axis_max)
+
+    # Use the filter function to obtain the resultant point cloud
+    cloud_filtered = passthrough.filter()
+
+    return cloud_filtered
+
 
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
@@ -11,14 +39,30 @@ def pcl_callback(pcl_msg):
     # Convert ROS msg to PCL data
     point_cloud = ros_to_pcl(pcl_msg)
 
-    # TODO: Voxel Grid Downsampling
+    #Voxel Grid Downsampling
+    cloud_downsampled = vox_downsample(point_cloud)
 
-    # TODO: PassThrough Filter
+    # RANSAC Plane Segmentation
+    # Passthrough filtering
+    cloud_filtered = passthrough_filter(cloud_downsampled, 'z', 0.6, 1.1)
+    
+    # Create the segmentation object
+    seg = cloud_filtered.make_segmenter()
 
+    # Set the model you wish to fit
+    seg.set_model_type(pcl.SACMODEL_PLANE)
+    seg.set_method_type(pcl.SAC_RANSAC)
 
-    # TODO: RANSAC Plane Segmentation
+    # Max distance for a point to be considered fitting the model
+    max_distance = 0.01
+    seg.set_distance_threshold(max_distance)
 
-    # TODO: Extract inliers and outliers
+    # Call the segment function to obtain a set of inlier indices and model coefficients
+    inliers, coefficients = seg.segment()
+
+    # Extract inliers and outliers
+    extracted_inliers = cloud_filtered.extract(inliers, negative=False)
+    extracted_outliers = cloud_filtered.extract(inliers, negative=True)
 
     # TODO: Euclidean Clustering
 
