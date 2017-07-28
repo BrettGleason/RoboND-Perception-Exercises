@@ -68,9 +68,11 @@ def pcl_callback(pcl_msg):
 
     # TODO: Create Cluster-Mask Point Cloud to visualize each cluster separately
 
-    # TODO: Convert PCL data to ROS messages
+    # Convert PCL data to ROS messages
+    ros_cloud_objects = pcl_to_ros(cloud_objects)
+    ros_cloud_table = pcl_to_ros(cloud_table)
 
-    # TODO: Publish ROS messages
+    # Publish ROS messages
     pcl_objects_pub.publish(pcl_msg)
     pcl_table_pub.publish(pcl_msg)
 
