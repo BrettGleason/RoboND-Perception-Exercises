@@ -61,8 +61,8 @@ def pcl_callback(pcl_msg):
     inliers, coefficients = seg.segment()
 
     # Extract inliers and outliers
-    extracted_inliers = cloud_filtered.extract(inliers, negative=False)
-    extracted_outliers = cloud_filtered.extract(inliers, negative=True)
+    cloud_table = cloud_filtered.extract(inliers, negative=False)
+    cloud_objects = cloud_filtered.extract(inliers, negative=True)
 
     # TODO: Euclidean Clustering
 
