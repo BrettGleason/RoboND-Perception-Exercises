@@ -44,10 +44,11 @@ def pcl_callback(pcl_msg):
 
     # RANSAC Plane Segmentation
     # Passthrough filtering
-    cloud_filtered = passthrough_filter(cloud_downsampled, 'z', 0.6, 1.1)
+    cloud_filtered_z = passthrough_filter(cloud_downsampled, 'z', 0.6, 1.1)
+    cloud_filtered_yz = passthrough_filter(cloud_filtered_z, 'y', -2.3, -1.4)
     
     # Create the segmentation object
-    seg = cloud_filtered.make_segmenter()
+    seg = cloud_filtered_yz.make_segmenter()
 
     # Set the model you wish to fit
     seg.set_model_type(pcl.SACMODEL_PLANE)
@@ -61,8 +62,8 @@ def pcl_callback(pcl_msg):
     inliers, coefficients = seg.segment()
 
     # Extract inliers and outliers
-    cloud_table = cloud_filtered.extract(inliers, negative=False)
-    cloud_objects = cloud_filtered.extract(inliers, negative=True)
+    cloud_table = cloud_filtered_yz.extract(inliers, negative=False)
+    cloud_objects = cloud_filtered_yz.extract(inliers, negative=True)
 
     # TODO: Euclidean Clustering
 
