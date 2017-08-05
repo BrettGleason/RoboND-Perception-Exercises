@@ -181,10 +181,8 @@ if __name__ == '__main__':
     pcl_objects_pub = rospy.Publisher("/pcl_objects", PointCloud2, queue_size=1)
     pcl_table_pub = rospy.Publisher("/pcl_table", PointCloud2, queue_size=1)
     pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
-    # TODO: here you need to create two publishers
-    # Call them object_markers_pub and detected_objects_pub
-    # Have them publish to "/object_markers" and "/detected_objects" with
-    # Message Types "Marker" and "DetectedObjectsArray", respectively
+    object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=1)
+    detected_objects_pub = rospy.Publisher("/detected_objects", DetectedObjectsArray, queue_size=1)
 
     # Load Model From disk
     model = pickle.load(open('model.sav', 'rb'))
