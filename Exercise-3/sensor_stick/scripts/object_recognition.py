@@ -131,18 +131,43 @@ def pcl_callback(pcl_msg):
 # Exercise-3 TODOs: 
 
     # Classify the clusters! (loop through each detected cluster one at a time)
+    detected_objects_lables = []
+    detected_objects = []
 
+    for index, pts_list in enumerate(cluster_indices):
         # Grab the points for the cluster
+        pcl_cluster = cloud_out.extract(pts_list)
+        # Convert the cluster from pcl to ROS using the helper function
+        pcl_to_ros(pcl_cluster)
 
-        # Compute the associated feature vector
-
-        # Make the prediction
+        # Extract histogram features
+        chists = compute_color_histograms(sample_cloud, using hsv=True)
+        normals = get_normals(sample_cloud)
+        nhists = compute_normal_histograms(normals)
+        feature = np.concatenate((chists, nhists))
+        labeled_features.append([feature, model_name])
+        # Make the prediction, retrieve the label for the result
+        # and add it to detected_objects_labels list
+        prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+        label = encoder.inverse_transform(prediction)[0]
+        detected_objects_labels.append(label)
 
         # Publish a label into RViz
+        label_pos = list(white_cloud[pts_list[0]])
+        label_pos[2] += 0.4
+        object_markers_pub.publish(make_label(label, label_pos, index))
 
         # Add the detected object to the list of detected objects.
+        do = DetectedObject()
+        do.label = label
+        do.cloud = ros_cluster
+        detected_objects.append(do)
+
+    rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
+
 
     # Publish the list of detected objects
+    detected_objects_pub.publish(detected_objects)
 
 if __name__ == '__main__':
 
@@ -156,8 +181,17 @@ if __name__ == '__main__':
     pcl_objects_pub = rospy.Publisher("/pcl_objects", PointCloud2, queue_size=1)
     pcl_table_pub = rospy.Publisher("/pcl_table", PointCloud2, queue_size=1)
     pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
+    # TODO: here you need to create two publishers
+    # Call them object_markers_pub and detected_objects_pub
+    # Have them publish to "/object_markers" and "/detected_objects" with
+    # Message Types "Marker" and "DetectedObjectsArray", respectively
 
-    # TODO: Load Model From disk
+    # Load Model From disk
+    model = pickle.load(open('model.sav', 'rb'))
+    clf = model['classifier']
+    encoder = LabelEncoder()
+    encoder.classes_ = model['classes']
+    scaler = model['scaler']
 
     # Initialize color_list
     get_color_list.color_list = []
