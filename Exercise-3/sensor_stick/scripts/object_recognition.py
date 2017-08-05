@@ -43,7 +43,7 @@ def passthrough_filter(cloud, filter_axis, axis_min, axis_max):
 
     # Assign axis and range to the passthrough filter object
     passthrough.set_filter_field_name (filter_axis)
-    passthrough.set_filter_field_limits (axis_min, axis_max)
+    passthrough.set_filter_limits (axis_min, axis_max)
 
     # Use the filter function to obtain the resultant point cloud
     cloud.filtered = passthrough.filter()
@@ -108,7 +108,7 @@ def pcl_callback(pcl_msg):
     color_cluster_point_list = []
 
     for j, indices in enumerate(cluster_indices):
-        for i, indice in enumerate(indices)
+        for i, indice in enumerate(indices):
             color_cluster_point_list.append([white_cloud[indice][0],
                                              white_cloud[indice][1],
                                              white_cloud[indice][2],
@@ -141,7 +141,7 @@ def pcl_callback(pcl_msg):
         pcl_to_ros(pcl_cluster)
 
         # Extract histogram features
-        chists = compute_color_histograms(sample_cloud, using hsv=True)
+        chists = compute_color_histograms(sample_cloud, using_hsv=True)
         normals = get_normals(sample_cloud)
         nhists = compute_normal_histograms(normals)
         feature = np.concatenate((chists, nhists))
