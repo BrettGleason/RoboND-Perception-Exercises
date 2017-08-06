@@ -46,7 +46,7 @@ def passthrough_filter(cloud, filter_axis, axis_min, axis_max):
     passthrough.set_filter_limits (axis_min, axis_max)
 
     # Use the filter function to obtain the resultant point cloud
-    cloud.filtered = passthrough.filter()
+    cloud_filtered = passthrough.filter()
 
     return cloud_filtered
 
@@ -131,21 +131,21 @@ def pcl_callback(pcl_msg):
 # Exercise-3 TODOs: 
 
     # Classify the clusters! (loop through each detected cluster one at a time)
-    detected_objects_lables = []
+    detected_objects_labels = []
     detected_objects = []
 
     for index, pts_list in enumerate(cluster_indices):
         # Grab the points for the cluster
-        pcl_cluster = cloud_out.extract(pts_list)
+        pcl_cluster = cloud_objects.extract(pts_list)
         # Convert the cluster from pcl to ROS using the helper function
-        pcl_to_ros(pcl_cluster)
+        ros_cluster = pcl_to_ros(pcl_cluster)
 
         # Extract histogram features
-        chists = compute_color_histograms(sample_cloud, using_hsv=True)
-        normals = get_normals(sample_cloud)
+        chists = compute_color_histograms(ros_cluster, using_hsv=True)
+        normals = get_normals(ros_cluster)
         nhists = compute_normal_histograms(normals)
         feature = np.concatenate((chists, nhists))
-        labeled_features.append([feature, model_name])
+        detected_objects_labels.append([feature, index])
         # Make the prediction, retrieve the label for the result
         # and add it to detected_objects_labels list
         prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
