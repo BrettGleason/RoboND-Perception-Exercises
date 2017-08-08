@@ -4,6 +4,7 @@ import pcl
 # Load Point Cloud file
 cloud = pcl.load_XYZRGB('tabletop.pcd')
 
+
 # Voxel Grid filter
 # Create a VoxelGrid filter object for our input point cloud
 vox = cloud.make_voxel_grid_filter()
